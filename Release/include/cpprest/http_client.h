@@ -12,6 +12,8 @@
  ****/
 #pragma once
 
+#include "cpprest/vector_cfg.h"
+
 #ifndef CASA_HTTP_CLIENT_H
 #define CASA_HTTP_CLIENT_H
 
@@ -54,7 +56,7 @@ typedef void* native_handle;
 #include <limits>
 #include <memory>
 
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#if !defined(CPPREST_TARGET_XP)
 #include "cpprest/oauth1.h"
 #endif
 
@@ -104,15 +106,13 @@ public:
 #if !defined(_WIN32) && !defined(__cplusplus_winrt) || defined(CPPREST_FORCE_HTTP_CLIENT_ASIO)
         , m_tlsext_sni_enabled(true)
 #endif
-#if (defined(_WIN32) && !defined(__cplusplus_winrt)) || defined(CPPREST_FORCE_HTTP_CLIENT_WINHTTPPAL)
+#if defined(_WIN32) && !defined(__cplusplus_winrt)
         , m_buffer_request(false)
 #endif
-        , m_max_redirects(10)
-        , m_https_to_http_redirects(false)
     {
     }
 
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#if !defined(CPPREST_TARGET_XP)
     /// <summary>
     /// Get OAuth 1.0 configuration.
     /// </summary>
@@ -264,7 +264,7 @@ public:
     void set_validate_certificates(bool validate_certs) { m_validate_certificates = validate_certs; }
 #endif
 
-#if (defined(_WIN32) && !defined(__cplusplus_winrt)) || defined(CPPREST_FORCE_HTTP_CLIENT_WINHTTPPAL)
+#if defined(_WIN32) && !defined(__cplusplus_winrt)
     /// <summary>
     /// Checks if request data buffering is turned on, the default is off.
     /// </summary>
@@ -280,38 +280,6 @@ public:
     /// <remarks>Please note there is a performance cost due to copying the request data.</remarks>
     void set_buffer_request(bool buffer_request) { m_buffer_request = buffer_request; }
 #endif
-
-    /// <summary>
-    /// Get the maximum number of redirects to follow automatically.
-    /// A value of 0 indicates that no automatic redirection is performed.
-    /// </summary>
-    /// <returns>The maximum number of redirects to follow automatically.</returns>
-    /// <remarks>This is a hint -- an implementation may enforce a lower value.</remarks>
-    size_t max_redirects() const { return m_max_redirects; }
-
-    /// <summary>
-    /// Set the maximum number of redirects to follow automatically.
-    /// A value of 0 indicates that no automatic redirection is performed.
-    /// </summary>
-    /// <param name="max_redirects">The maximum number of redirects to follow automatically.</param>
-    /// <remarks>This is a hint -- an implementation may enforce a lower value.</remarks>
-    void set_max_redirects(size_t max_redirects) { m_max_redirects = max_redirects; }
-
-    /// <summary>
-    /// Checks if HTTPS to HTTP redirects are automatically followed.
-    /// </summary>
-    /// <returns>True if HTTPS to HTTP redirects are automatically followed, false otherwise.</returns>
-    bool https_to_http_redirects() const { return m_https_to_http_redirects; }
-
-    /// <summary>
-    /// Sets if HTTPS to HTTP redirects are automatically followed.
-    /// </summary>
-    /// <param name="https_to_http_redirects">True if HTTPS to HTTP redirects are to be automatically
-    /// followed, false otherwise.</param>
-    void set_https_to_http_redirects(bool https_to_http_redirects)
-    {
-        m_https_to_http_redirects = https_to_http_redirects;
-    }
 
     /// <summary>
     /// Sets a callback to enable custom setting of platform specific options.
@@ -397,7 +365,7 @@ public:
 #endif
 
 private:
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#if !defined(CPPREST_TARGET_XP)
     std::shared_ptr<oauth1::experimental::oauth1_config> m_oauth1;
 #endif
 
@@ -423,12 +391,9 @@ private:
     std::function<void(boost::asio::ssl::context&)> m_ssl_context_callback;
     bool m_tlsext_sni_enabled;
 #endif
-#if (defined(_WIN32) && !defined(__cplusplus_winrt)) || defined(CPPREST_FORCE_HTTP_CLIENT_WINHTTPPAL)
+#if defined(_WIN32) && !defined(__cplusplus_winrt)
     bool m_buffer_request;
 #endif
-
-    size_t m_max_redirects;
-    bool m_https_to_http_redirects;
 };
 
 class http_pipeline;
@@ -753,7 +718,7 @@ private:
 
 namespace details
 {
-#if defined(_WIN32) || defined(CPPREST_FORCE_HTTP_CLIENT_WINHTTPPAL)
+#if defined(_WIN32)
 extern const utility::char_t* get_with_body_err_msg;
 #endif
 

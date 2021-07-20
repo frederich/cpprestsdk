@@ -10,6 +10,8 @@
  ****/
 #pragma once
 
+#include "cpprest/vector_cfg.h"
+
 #ifndef CASA_HTTP_LISTENER_H
 #define CASA_HTTP_LISTENER_H
 
